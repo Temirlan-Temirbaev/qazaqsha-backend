@@ -21,7 +21,7 @@ export class TeacherController {
 
   @Post("lesson")
   @UseGuards(RoleGuard)
-  @Roles("teacher")
+  @Roles("teacher", "moderator")
   @UseInterceptors(FileInterceptor("file"))
   async createLesson(@Body() body: { courseId: string, title: string, text: string}, @UploadedFile() file : Express.Multer.File) {
     return await this.teacherUseCase.createLesson(body.courseId, body.title, body.text, file)

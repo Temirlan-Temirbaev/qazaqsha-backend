@@ -5,4 +5,5 @@ import {Question} from "./question";
 export class Test extends Assignment {
   course: Course;
   questions: Question[];
+  is_final : boolean
 }

@@ -38,9 +38,9 @@ export class S3Service implements IFileService {
       const buffer = Buffer.from(file);
       const contentType =
         mime.contentType(extension) || 'application/octet-stream';
-
+      // console.log(process.env.AWS_BUCKET)
       const uploadParams = {
-        Bucket: process.env.AWS_BUCKET,
+        Bucket: "qazaqsha",
         Key: key,
         Body: buffer,
         ContentType: contentType,

@@ -32,7 +32,8 @@ export class AssignmentUseCase {
   async createTest(
     courseId: string,
     title: string,
-    points: number
+    points: number,
+    is_final : boolean
   ): Promise<Success> {
     const course = await this.dataService.courses.get({ where: { course_id: courseId }, relations: ["tests"] });
     if (!course) {
@@ -42,7 +43,8 @@ export class AssignmentUseCase {
       title,
       course,
       points,
-      replies: []
+      replies: [],
+      is_final
     });
     course.tests = [...course.tests, test];
     await this.dataService.courses.save(course);

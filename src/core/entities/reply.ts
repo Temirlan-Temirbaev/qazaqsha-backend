@@ -3,8 +3,8 @@ import { Assignment } from './assignment';
 
 export class Reply {
   reply_id: string;
-  // assignment: Assignment;
-  student: User;
+  student: string;
+  assignment_id: string;
   answers: string[];
   score: number;
   created_at: Date;

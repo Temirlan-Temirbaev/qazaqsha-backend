@@ -26,5 +26,11 @@ export class Lesson {
   video: string | null;
 
   @Column({ nullable: true })
+  audio: string | null;
+
+  @Column({ nullable: true })
+  image: string | null;
+
+  @Column({ nullable: true })
   text: string | null;
 }

@@ -86,4 +86,65 @@ export class UserUseCase {
     return user;
   }
 
+
+  async updateUser(
+    user_id: string,
+    updates: { phone?: string; mail?: string; age?: number }
+  ): Promise<User> {
+    const user = await this.dataService.users.get({ where: { user_id } });
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    if (updates.phone) {
+      const phoneExists = await this.dataService.users.get({ where: { phone: updates.phone } });
+      if (phoneExists && phoneExists.user_id !== user_id) {
+        throw new BadRequestException('Этот номер телефона уже используется другим пользователем');
+      }
+      user.phone = updates.phone;
+    }
+
+    if (updates.mail) {
+      const mailExists = await this.dataService.users.get({ where: { mail: updates.mail } });
+      if (mailExists && mailExists.user_id !== user_id) {
+        throw new BadRequestException('Этот адрес почты уже используется другим пользователем');
+      }
+      user.mail = updates.mail;
+    }
+
+    if (updates.age) {
+      if (updates.age <= 0) {
+        throw new BadRequestException('Возраст должен быть положительным числом');
+      }
+      user.age = updates.age;
+    }
+    return await this.dataService.users.save(user);
+  }
+
+
+  async changePassword(
+    user_id: string,
+    dto: { oldPassword: string; newPassword: string; confirmPassword: string }
+  ): Promise<string> {
+    const user = await this.dataService.users.get({ where: { user_id } });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    const isOldPasswordMatch = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isOldPasswordMatch) {
+      throw new UnauthorizedException('Старый пароль неверный');
+    }
+
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException('Новый пароль и его подтверждение не совпадают');
+    }
+
+    user.password = await bcrypt.hash(dto.newPassword, 7);
+    await this.dataService.users.save(user);
+
+    return 'Пароль успешно изменён';
+  }
+
 }

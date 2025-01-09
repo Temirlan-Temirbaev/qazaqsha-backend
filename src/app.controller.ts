@@ -22,10 +22,10 @@ export class AppController {
     return this.dataService.courses.get({
       where: { course_id: courseId, students: { user_id } },
       relations: [
-        'teacher',
-        'levels',
+        // 'teacher',
+        // 'levels',
         'courseProgress',
-        'courseProgress.user',
+        // 'courseProgress.user',
         'tests',
         'lessons',
       ],

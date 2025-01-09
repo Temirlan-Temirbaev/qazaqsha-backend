@@ -20,17 +20,18 @@ export class AssignmentController {
 
   @Post("test")
   @UseGuards(RoleGuard)
-  @Roles("teacher")
+  @Roles("teacher", "moderator")
   async createTest(
     @Body("courseId") courseId: string,
     @Body("title") title: string,
-    @Body("points") points: number
+    @Body("points") points: number,
+    @Body("isFinal") isFinal: boolean
   ): Promise<Success> {
     if (!courseId || !title || points === undefined) {
       throw new BadRequestException("Course ID, title, and points are required");
     }
 
-    return await this.assignmentUseCase.createTest(courseId, title, points);
+    return await this.assignmentUseCase.createTest(courseId, title, points, isFinal);
   }
 
   @Post("start-test")

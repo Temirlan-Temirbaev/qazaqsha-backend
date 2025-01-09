@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Post} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Put} from "@nestjs/common";
 import {UserUseCase} from "../use-cases/user/user.use-case";
 import {Public} from "../use-cases/user/decorators/public";
 import {getUserId} from "../use-cases/user/decorators/getUserId";
@@ -39,4 +39,16 @@ export class UserController {
     return await this.userUseCase.checkLogin(user_id)
   }
 
+  @Put('update')
+  async updateUser(@Body() updates: { phone?: string; mail?: string; age?: number }, @getUserId() user_id: string) {
+    return this.userUseCase.updateUser(user_id, updates);
+  }
+
+  @Put('change-password')
+  async changePassword(
+    @Body() dto: { oldPassword: string; newPassword: string; confirmPassword: string },
+    @getUserId() user_id: string
+  ) {
+    return this.userUseCase.changePassword(user_id, dto);
+  }
 }

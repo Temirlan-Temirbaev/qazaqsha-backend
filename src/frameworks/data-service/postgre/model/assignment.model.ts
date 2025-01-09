@@ -9,12 +9,11 @@ export abstract class Assignment {
   @Column()
   title: string;
 
-
   // @OneToMany(() => Reply, (reply) => reply.assignment)
   @Column("json")
   replies: Reply[] | [];
 
 
-  @Column()
+  @Column({default: 100})
   points: number;
 }

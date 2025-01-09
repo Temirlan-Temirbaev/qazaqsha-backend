@@ -21,6 +21,7 @@ import { AnswerController } from './controllers/answer.controller';
 import { ReplyUseCasesModule } from './use-cases/reply/reply.use-cases.module';
 import { ReplyController } from './controllers/reply.controller';
 import { AppController } from './app.controller';
+import {CourseController} from "./controllers/course.controller";
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AppController } from './app.controller';
     ReplyUseCasesModule,
   ],
   controllers: [
+    CourseController,
     UserController,
     AppController,
     AdminController,

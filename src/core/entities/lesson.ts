@@ -8,4 +8,6 @@ export class Lesson {
   title: string;
   video: string | null;
   text: string | null;
+  audio : string | null;
+  image: string | null;
 }
