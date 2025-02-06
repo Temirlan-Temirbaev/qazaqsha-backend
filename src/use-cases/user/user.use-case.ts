@@ -28,7 +28,7 @@ export class UserUseCase {
 
   async createUser(dto: CreateUserDto): Promise<User> {
     const user = this.userFactory.createUser(dto);
-    user.role ="moderator"
+    user.role ="user"
     return await this.dataService.users.save(user);
   }
 
