@@ -35,7 +35,7 @@ services:
 
   backend:
     build:
-      context: qazaqsha-backend
+      context: .
       dockerfile: ./docker/${ENVIRONMENT}/Dockerfile
     depends_on:
       - db
