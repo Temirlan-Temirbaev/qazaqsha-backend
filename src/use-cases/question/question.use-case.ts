@@ -1,11 +1,14 @@
-import {IDataService} from "../../core/abstracts";
-import {IFileService} from "../../core/abstracts/file-service.abstract";
-import {Injectable, NotFoundException} from "@nestjs/common";
-import {Success} from "../../shared/types/Success.type";
+import { IDataService } from '../../core/abstracts';
+import { IFileService } from '../../core/abstracts/file-service.abstract';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Success } from '../../shared/types/Success.type';
 
 @Injectable()
 export class QuestionUseCase {
-  constructor(private dataService: IDataService, private fileService: IFileService) {}
+  constructor(
+    private dataService: IDataService,
+    private fileService: IFileService,
+  ) {}
 
   // Получение всех вопросов
   async getQuestions(page = 1) {
@@ -13,31 +16,48 @@ export class QuestionUseCase {
   }
 
   // Создание вопроса
-  async createQuestion(test_id : string, content: string | Express.Multer.File): Promise<Success> {
+  async createQuestion(
+    test_id: string,
+    content: string | Express.Multer.File,
+    type: 'default' | 'select' | 'input',
+    correct_input?: string,
+  ): Promise<Success> {
     try {
-      const test = await this.dataService.tests.get({where: {assignment_id : test_id}, relations : ["questions"]})
-      const startTest = await this.dataService.start_test.get({where: {assignment_id : test_id}, relations : ["questions"]})
+      const test = await this.dataService.tests.get({
+        where: { assignment_id: test_id },
+        relations: ['questions'],
+      });
+      const startTest = await this.dataService.start_test.get({
+        where: { assignment_id: test_id },
+        relations: ['questions'],
+      });
       if (!test && !startTest) {
         new NotFoundException('Test or startTest not found');
       }
-      const question = this.dataService.questions.create({});
+      const question = this.dataService.questions.create({
+        type: type ? type : 'default',
+        correct_input: correct_input ? correct_input : null,
+      });
       if (typeof content === 'string') {
         question.text = content;
       } else {
         const format = content.mimetype.split('/')[0];
         this.fileService.validateType(content, format);
-        const contentUrl = await this.fileService.saveFile(content.buffer, content.originalname);
+        const contentUrl = await this.fileService.saveFile(
+          content.buffer,
+          content.originalname,
+        );
         question[format] = contentUrl;
       }
 
       if (test) {
         test.questions = [...test.questions, question];
-        question.test = test
+        question.test = test;
         await this.dataService.tests.save(test);
       }
       if (startTest) {
         startTest.questions = [...startTest.questions, question];
-        question.start_test = startTest
+        question.start_test = startTest;
         await this.dataService.start_test.save(startTest);
       }
       await this.dataService.questions.save(question);
@@ -49,8 +69,13 @@ export class QuestionUseCase {
   }
 
   // Редактирование вопроса с версионностью
-  async editQuestion(id: string, updatedContent: string | Express.Multer.File): Promise<Success> {
-    const question = await this.dataService.questions.get({ where: { question_id: id } });
+  async editQuestion(
+    id: string,
+    updatedContent: string | Express.Multer.File,
+  ): Promise<Success> {
+    const question = await this.dataService.questions.get({
+      where: { question_id: id },
+    });
     if (!question) throw new NotFoundException('Question not found');
 
     // Сохранение текущей версии вопроса
@@ -82,7 +107,10 @@ export class QuestionUseCase {
         }
       }
 
-      const contentUrl = await this.fileService.saveFile(updatedContent.buffer, updatedContent.originalname);
+      const contentUrl = await this.fileService.saveFile(
+        updatedContent.buffer,
+        updatedContent.originalname,
+      );
       question[format] = contentUrl;
     }
 
@@ -92,7 +120,9 @@ export class QuestionUseCase {
 
   // Удаление вопроса
   async deleteQuestion(id: string): Promise<Success> {
-    const question = await this.dataService.questions.get({ where: { question_id: id } });
+    const question = await this.dataService.questions.get({
+      where: { question_id: id },
+    });
     if (!question) throw new NotFoundException('Question not found');
 
     const fileTypes = ['image', 'audio', 'video'];
@@ -108,7 +138,9 @@ export class QuestionUseCase {
 
   // Отправка вопроса
   async submitQuestion(id: string): Promise<Success> {
-    const question = await this.dataService.questions.get({ where: { question_id: id } });
+    const question = await this.dataService.questions.get({
+      where: { question_id: id },
+    });
     if (!question) throw new NotFoundException('Question not found');
 
     question.is_submitted = true;
@@ -118,14 +150,23 @@ export class QuestionUseCase {
 
   // Получение всех версий конкретного вопроса
   async getQuestionVersions(id: string) {
-    const question = await this.dataService.questions.get({ where: { question_id: id }, relations: ['versions'] });
+    const question = await this.dataService.questions.get({
+      where: { question_id: id },
+      relations: ['versions'],
+    });
     if (!question) throw new NotFoundException('Question not found');
 
     return question.versions;
   }
 
-  async revertQuestionToVersion(questionId: string, versionId: string): Promise<Success> {
-    const version = await this.dataService.question_versions.get({ where: { version_id: versionId }, relations: ['question'] });
+  async revertQuestionToVersion(
+    questionId: string,
+    versionId: string,
+  ): Promise<Success> {
+    const version = await this.dataService.question_versions.get({
+      where: { version_id: versionId },
+      relations: ['question'],
+    });
     if (!version) throw new NotFoundException('Version not found');
 
     const question = version.question;

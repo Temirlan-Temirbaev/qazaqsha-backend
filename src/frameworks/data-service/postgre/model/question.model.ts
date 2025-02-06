@@ -1,16 +1,24 @@
-import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { QuestionVersion } from './questionVersion.model';
-import {Answer} from "./answer.model";
-import {Test} from "./test.model";
-import {Quiz} from "./quiz.model";
-import {StartTest} from "./startTest.model";
+import { Answer } from './answer.model';
+import { Test } from './test.model';
+import { Quiz } from './quiz.model';
+import { StartTest } from './startTest.model';
 
 @Entity()
 export class Question {
   @PrimaryGeneratedColumn('uuid')
   question_id: string;
 
-  @ManyToOne(() => StartTest, (startTest) => startTest.questions, { nullable: true })
+  @ManyToOne(() => StartTest, (startTest) => startTest.questions, {
+    nullable: true,
+  })
   start_test: StartTest | null;
 
   @ManyToOne(() => Test, (test) => test.questions, { nullable: true })
@@ -30,13 +38,16 @@ export class Question {
 
   @Column({ nullable: true })
   video: string | null;
-
+  @Column({ default: 'default' })
+  type: 'default' | 'input' | 'select';
   @Column({ default: false })
   is_submitted: boolean;
-
+  @Column({ nullable: true })
+  correct_input: string | null;
   @OneToMany(() => Answer, (answer) => answer.question, { cascade: true })
   answers: Answer[];
-
-  @OneToMany(() => QuestionVersion, (version) => version.question, { cascade: true })
+  @OneToMany(() => QuestionVersion, (version) => version.question, {
+    cascade: true,
+  })
   versions: QuestionVersion[];
 }

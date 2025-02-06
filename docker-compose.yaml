@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    ports:
+      - '5444:5432'
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - qazaqshaDB:/var/lib/postgresql/data
+    networks:
+      - internal
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "${MINIO_API_PORT}:${MINIO_API_PORT}"
+      - "${MINIO_WEB_PORT}:${MINIO_WEB_PORT}"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":${MINIO_WEB_PORT}"
+    networks:
+      - internal
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: qazaqsha-backend
+      dockerfile: ./docker/${ENVIRONMENT}/Dockerfile
+    depends_on:
+      - db
+      - minio
+      - redis
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      AWS_URL: ${AWS_URL}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      AWS_BUCKET: ${AWS_BUCKET}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - 3001:3001
+    volumes:
+      - ./qazaqsha-backend:/backend
+    networks:
+      - internal
+volumes:
+  qazaqshaDB:
+  minio_data:
+  redis_data:
+    driver: local
+
+networks:
+  internal:
+    name: skill_spectre_internal
+    driver: bridge

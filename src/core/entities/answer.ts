@@ -1,4 +1,4 @@
-import {Question} from "./question";
+import { Question } from './question';
 
 export class Answer {
   answer_id: string;
