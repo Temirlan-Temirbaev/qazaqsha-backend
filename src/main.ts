@@ -8,7 +8,6 @@ async function bootstrap() {
     credentials: true,
     methods : ["POST", "GET", "PUT", "DELETE", "PATCH"]
   });
-  app.setGlobalPrefix('/api');
   await app.listen(3001, '0.0.0.0');
 }
 bootstrap();
